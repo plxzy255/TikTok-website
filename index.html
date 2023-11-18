@@ -35,6 +35,7 @@
             background-color: #45a049;
         }
     </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -52,7 +53,8 @@
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
             var invoiceId = $('#invoiceId').val();
-            $.get('/checkInvoice/' + invoiceId, function(data) {
+            // Update the URL to your Heroku app
+            $.get('https://your-heroku-app.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
                 $('#statusMessage').text(data.message);
             }).fail(function() {
                 $('#statusMessage').text('Error occurred while checking the status.');
