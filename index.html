@@ -54,7 +54,7 @@
             e.preventDefault();
             var invoiceId = $('#invoiceId').val();
             // Update the URL to your Heroku app
-            $.get('https://your-heroku-app.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
+            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
                 $('#statusMessage').text(data.message);
             }).fail(function() {
                 $('#statusMessage').text('Error occurred while checking the status.');
