@@ -61,18 +61,14 @@
     $(document).ready(function() {
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
-            var invoiceId = $('#InvoiceId').val();
-            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + InvoiceId, function(data) {
-                if (data) {
-                    var message = `Invoice ID: ${data.InvoiceId}<br>
-                                   Created At: ${data.CreatedAt}<br>
-                                   Quantity: ${data.Quantity}<br>
-                                   Target URL: ${data.target_url}<br>
-                                   Views Sent: ${data.views_sent}`;
-                    $('#statusMessage').html(message);
-                } else {
-                    $('#statusMessage').text('Invoice ID not found.');
-                }
+            var invoiceId = $('#InvoiceId').val(); // Ensure this matches the ID of your input element
+            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
+                var message = `Invoice ID: ${data.InvoiceId}<br>
+                               Created At: ${data.CreatedAt}<br>
+                               Quantity: ${data.Quantity}<br>
+                               Target URL: ${data.target_url}<br>
+                               Views Sent: ${data.views_sent}`;
+                $('#statusMessage').html(message);
             }).fail(function(jqXHR) {
                 if (jqXHR.status === 404) {
                     $('#statusMessage').text('Invoice ID not found.');
@@ -83,5 +79,6 @@
         });
     });
 </script>
+
 </body>
 </html>
