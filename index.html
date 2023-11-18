@@ -89,10 +89,10 @@
     </form>
 </div>
 <div id="statusMessage"></div>
-<div id="taskDetailsTable"></div>
-<div class="container">
-    <button id="updateViewsButton" type="button" style="display: none;">Update Views</button>
-    <p id="timer"></p>
+<div id="taskDetailsContainer" class="container">
+    <div id="taskDetailsTable"></div>
+    <button id="updateViewsButton" type="button" style="display: none; margin-top: 20px;">Update Views</button>
+    <p id="timer" style="display: none;"></p>
 </div>
 <script>
     $(document).ready(function() {
@@ -117,8 +117,8 @@
             fetchAndUpdateViewsSent(invoiceId); // Fetch and update views sent
 
             $(this).prop('disabled', true); // Disable the button
-            $(this).text('Please wait 60 seconds');
-            // Set a 60-second timer
+            $(this).text('Please wait 60 seconds'); // Update the button text
+
             var timeLeft = 60;
             timer = setInterval(function() {
                 timeLeft--;
@@ -132,8 +132,8 @@
 
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
-            $('#statusMessage').empty();
-            $('#taskDetailsTable').empty();
+            $('#statusMessage').empty(); // Clear any previous messages
+            $('#taskDetailsTable').empty(); // Clear previous table if any
             clearInterval(timer); // Clear any existing timer
             $('#updateViewsButton').hide(); // Hide the update views button
             $('#timer').empty(); // Clear the timer text
@@ -162,10 +162,10 @@
                                     <td>${data.views_sent}</td>
                                 </tr>
                              </table>`;
-                $('#taskDetailsTable').html(table).wrap("<div class='container'></div>");
+                $('#taskDetailsTable').html(table);
                 $('#updateViewsButton').show(); // Show the update views button
+                $('#timer').hide(); // Ensure timer text is hidden initially
             }).fail(function(jqXHR) {
-                $('#taskDetailsTable').unwrap();
                 if (jqXHR.status === 404) {
                     $('#statusMessage').text('Invoice ID not found.');
                 } else {
@@ -175,5 +175,6 @@
         });
     });
 </script>
+
 </body>
 </html>
