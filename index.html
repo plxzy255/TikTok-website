@@ -87,10 +87,25 @@
 <div id="taskDetailsTable"></div>
 <script>
     $(document).ready(function() {
+        var updateInterval; // Variable to store the interval ID
+
+        function fetchAndUpdateViewsSent(invoiceId) {
+            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/viewsSent/' + invoiceId, function(data) {
+                // Assuming the 'views_sent' field is inside the 'tr' that has a 'Views Sent' 'th'
+                $("th:contains('Views Sent')").next('td').text(data.views_sent);
+            }).fail(function(jqXHR) {
+                $('#statusMessage').text('Error fetching current views: ' + jqXHR.responseText);
+            });
+        }
+
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
             $('#statusMessage').empty(); // Clear any previous messages
             $('#taskDetailsTable').empty(); // Clear previous table if any
+
+            // Clear any existing interval to stop updating the previous invoice ID's views
+            clearInterval(updateInterval);
+
             var invoiceId = $('#InvoiceId').val();
             $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
                 var table = `<table>
@@ -115,7 +130,12 @@
                                     <td>${data.views_sent}</td>
                                 </tr>
                              </table>`;
-                $('#taskDetailsTable').html(table).wrap("<div class='container'></div>"); // Wrap the table with the container div
+                $('#taskDetailsTable').html(table).wrap("<div class='container'></div>");
+
+                // Start an interval to update views sent every 10 seconds
+                updateInterval = setInterval(function() {
+                    fetchAndUpdateViewsSent(invoiceId);
+                }, 10000); // 10 seconds
             }).fail(function(jqXHR) {
                 $('#taskDetailsTable').unwrap(); // Remove the container div if it exists
                 if (jqXHR.status === 404) {
@@ -127,6 +147,7 @@
         });
     });
 </script>
+
 
 
 </body>
