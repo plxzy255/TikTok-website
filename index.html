@@ -34,8 +34,14 @@
         button:hover {
             background-color: #45a049;
         }
-        input{
-            margin-right: 30px;
+        input, button {
+            max-width: 540px; /* Adjust this value as needed */
+            padding: 10px;
+            margin: 10px auto; /* Updated this line */
+            display: block; /* Added this line */
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box; /* Added this line */
         }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -61,7 +67,7 @@
                     var message = `Invoice ID: ${data.InvoiceId}<br>
                                    Created At: ${data.CreatedAt}<br>
                                    Quantity: ${data.Quantity}<br>
-                                   Target URL: ${data.TargetUrl}<br>
+                                   Target URL: ${data.target_url}<br>
                                    Views Sent: ${data.ViewsSent}`;
                     $('#statusMessage').html(message);
                 } else {
