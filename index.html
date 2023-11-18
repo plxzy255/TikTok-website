@@ -34,6 +34,9 @@
         button:hover {
             background-color: #45a049;
         }
+        input{
+            margin-right: 30px;
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
@@ -53,9 +56,17 @@
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
             var invoiceId = $('#invoiceId').val();
-            // Update the URL to your Heroku app
             $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
-                $('#statusMessage').text(data.message);
+                if (data) {
+                    var message = `Invoice ID: ${data.InvoiceId}<br>
+                                   Created At: ${data.CreatedAt}<br>
+                                   Quantity: ${data.Quantity}<br>
+                                   Target URL: ${data.TargetUrl}<br>
+                                   Views Sent: ${data.ViewsSent}`;
+                    $('#statusMessage').html(message);
+                } else {
+                    $('#statusMessage').text('Invoice ID not found.');
+                }
             }).fail(function() {
                 $('#statusMessage').text('Error occurred while checking the status.');
             });
