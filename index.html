@@ -64,7 +64,8 @@
             e.preventDefault();
             var invoiceId = $('#InvoiceId').val();
             $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
-                var table = `<table>
+                var table = `<div class="container">
+                             <table>
                                 <tr>
                                     <th>Invoice ID</th>
                                     <td>${data.InvoiceId}</td>
@@ -85,7 +86,8 @@
                                     <th>Views Sent</th>
                                     <td>${data.views_sent}</td>
                                 </tr>
-                             </table>`;
+                             </table>
+                             </div>`;
                 $('#taskDetailsTable').html(table);
             }).fail(function(jqXHR) {
                 if (jqXHR.status === 404) {
