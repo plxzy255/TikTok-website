@@ -73,8 +73,12 @@
                 } else {
                     $('#statusMessage').text('Invoice ID not found.');
                 }
-            }).fail(function() {
-                $('#statusMessage').text('Error occurred while checking the status.');
+            }).fail(function(jqXHR) {
+                if (jqXHR.status === 404) {
+                    $('#statusMessage').text('Invoice ID not found.');
+                } else {
+                    $('#statusMessage').text('Error occurred while checking the status.');
+                }
             });
         });
     });
