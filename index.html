@@ -43,6 +43,34 @@
             border: none;
             box-sizing: border-box; /* Added this line */
         }
+        #statusMessage {
+            margin-bottom: 20px; /* Adds space below the status message */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* Adds space above the table */
+        }
+
+        table, th, td {
+            border: 1px solid #ffffff;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        td a {
+            color: #dddddd;
+        }
+
+        td a:hover {
+            color: #ffffff;
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
@@ -62,37 +90,18 @@
     $(document).ready(function() {
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
+            $('#statusMessage').empty(); // Clear any previous messages
+            $('#taskDetailsTable').empty(); // Clear previous table if any
             var invoiceId = $('#InvoiceId').val();
             $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
-                var table = `<div class="container">
-                             <table>
-                                <tr>
-                                    <th>Invoice ID</th>
-                                    <td>${data.InvoiceId}</td>
-                                </tr>
-                                <tr>
-                                    <th>Created At</th>
-                                    <td>${data.CreatedAt}</td>
-                                </tr>
-                                <tr>
-                                    <th>Quantity</th>
-                                    <td>${data.Quantity}</td>
-                                </tr>
-                                <tr>
-                                    <th>Target URL</th>
-                                    <td><a href="${data.target_url}" target="_blank">${data.target_url}</a></td>
-                                </tr>
-                                <tr>
-                                    <th>Views Sent</th>
-                                    <td>${data.views_sent}</td>
-                                </tr>
-                             </table>
-                             </div>`;
-                $('#taskDetailsTable').html(table);
+                var table = `<table>
+                                <!-- ... table rows ... -->
+                             </table>`;
+                $('#taskDetailsTable').html(table).wrap("<div class='container'></div>"); // Wrap the table with the container div
             }).fail(function(jqXHR) {
+                $('#taskDetailsTable').unwrap(); // Remove the container div if it exists
                 if (jqXHR.status === 404) {
                     $('#statusMessage').text('Invoice ID not found.');
-                    $('#taskDetailsTable').empty(); // Clear previous table if any
                 } else {
                     $('#statusMessage').text('Error occurred while checking the status.');
                 }
