@@ -94,10 +94,13 @@
     <button id="updateViewsButton" type="button" style="display: none; margin-top: 20px;">Update Views</button>
     <p id="timer" style="display: none;"></p>
 </div>
+
 <script>
     $(document).ready(function() {
-        var timer; // Variable to store the timeout ID
-        var originalButtonText = 'Update Views'; // Store the original button text
+        var updateViewsTimer; // Timer for update views button
+        var checkStatusTimer; // Timer for check status button
+        var originalUpdateViewsButtonText = 'Update Views'; // Store the original text of the update views button
+        var originalCheckStatusButtonText = $('#invoiceCheckForm button').text(); // Store the original text of the check status button
 
         function fetchAndUpdateViewsSent(invoiceId) {
             $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/viewsSent/' + invoiceId, function(data) {
@@ -109,32 +112,29 @@
 
         $('#updateViewsButton').on('click', function() {
             var invoiceId = $('#InvoiceId').val();
-            if (!invoiceId) {
-                $('#statusMessage').text('Please enter an Invoice ID.');
-                return;
-            }
-
             fetchAndUpdateViewsSent(invoiceId); // Fetch and update views sent
 
-            $(this).prop('disabled', true); // Disable the button
-            $(this).text('Please wait 60 seconds'); // Update the button text
+            $(this).prop('disabled', true).text('Please wait 60 seconds'); // Disable the button and update text
 
             var timeLeft = 60;
-            timer = setInterval(function() {
+            updateViewsTimer = setInterval(function() {
                 timeLeft--;
                 $('#updateViewsButton').text('Please wait ' + timeLeft + ' seconds');
                 if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    $('#updateViewsButton').prop('disabled', false).text(originalButtonText); // Re-enable the button and reset text
+                    clearInterval(updateViewsTimer);
+                    $('#updateViewsButton').prop('disabled', false).text(originalUpdateViewsButtonText); // Re-enable the button and reset text
                 }
             }, 1000);
         });
 
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
-            $('#statusMessage').empty(); // Clear any previous messages
-            $('#taskDetailsTable').empty(); // Clear previous table if any
-            clearInterval(timer); // Clear any existing timer
+            var checkStatusButton = $(this).find('button');
+            checkStatusButton.prop('disabled', true).text('Please wait 60 seconds'); // Disable the button and update text
+
+            $('#statusMessage').empty();
+            $('#taskDetailsTable').empty();
+            clearInterval(updateViewsTimer); // Clear any existing update views timer
             $('#updateViewsButton').hide(); // Hide the update views button
             $('#timer').empty(); // Clear the timer text
 
@@ -163,14 +163,25 @@
                                 </tr>
                              </table>`;
                 $('#taskDetailsTable').html(table);
-                $('#updateViewsButton').show(); // Show the update views button
-                $('#timer').hide(); // Ensure timer text is hidden initially
+                fetchAndUpdateViewsSent(invoiceId); // Fetch and update views sent after successful invoice ID check
+                $('#updateViewsButton').show().prop('disabled', false).text(originalUpdateViewsButtonText); // Show and reset the update views button
+
+                var timeLeft = 60;
+                checkStatusTimer = setInterval(function() {
+                    timeLeft--;
+                    checkStatusButton.text('Please wait ' + timeLeft + ' seconds');
+                    if (timeLeft <= 0) {
+                        clearInterval(checkStatusTimer);
+                        checkStatusButton.prop('disabled', false).text(originalCheckStatusButtonText); // Re-enable the button and reset text
+                    }
+                }, 1000);
             }).fail(function(jqXHR) {
                 if (jqXHR.status === 404) {
                     $('#statusMessage').text('Invoice ID not found.');
                 } else {
                     $('#statusMessage').text('Error occurred while checking the status.');
                 }
+                checkStatusButton.prop('disabled', false).text(originalCheckStatusButtonText); // Reset the check status button in case of failure
             });
         });
     });
