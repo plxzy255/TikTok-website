@@ -51,7 +51,7 @@
     <h1>Check Your Task Status</h1>
     <form id="invoiceCheckForm">
         <label for="InvoiceId">Enter your Invoice ID:</label>
-        <input type="text" id="InvoiceId" name="InvoiceId">
+        <input type="text" id="invoiceId" name="invoiceId">
         <button type="submit">Check Status</button>
     </form>
 </div>
@@ -61,8 +61,8 @@
     $(document).ready(function() {
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
-            var InvoiceId = $('#InvoiceId').val();
-            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + InvoiceId, function(data) {
+            var invoiceId = $('#InvoiceId').val();
+            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
                 if (data) {
                     var message = `Invoice ID: ${data.InvoiceId}<br>
                                    Created At: ${data.CreatedAt}<br>
