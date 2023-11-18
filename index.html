@@ -71,6 +71,11 @@
         td a:hover {
             color: #ffffff;
         }
+        button:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
@@ -85,26 +90,53 @@
 </div>
 <div id="statusMessage"></div>
 <div id="taskDetailsTable"></div>
+<div class="container">
+    <button id="updateViewsButton" type="button" style="display: none;">Update Views</button>
+    <p id="timer"></p>
+</div>
 <script>
     $(document).ready(function() {
-        var updateInterval; // Variable to store the interval ID
+        var timer; // Variable to store the timeout ID
+        var originalButtonText = 'Update Views'; // Store the original button text
 
         function fetchAndUpdateViewsSent(invoiceId) {
             $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/viewsSent/' + invoiceId, function(data) {
-                // Assuming the 'views_sent' field is inside the 'tr' that has a 'Views Sent' 'th'
                 $("th:contains('Views Sent')").next('td').text(data.views_sent);
             }).fail(function(jqXHR) {
                 $('#statusMessage').text('Error fetching current views: ' + jqXHR.responseText);
             });
         }
 
+        $('#updateViewsButton').on('click', function() {
+            var invoiceId = $('#InvoiceId').val();
+            if (!invoiceId) {
+                $('#statusMessage').text('Please enter an Invoice ID.');
+                return;
+            }
+
+            fetchAndUpdateViewsSent(invoiceId); // Fetch and update views sent
+
+            $(this).prop('disabled', true); // Disable the button
+            $(this).text('Please wait 60 seconds');
+            // Set a 60-second timer
+            var timeLeft = 60;
+            timer = setInterval(function() {
+                timeLeft--;
+                $('#updateViewsButton').text('Please wait ' + timeLeft + ' seconds');
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    $('#updateViewsButton').prop('disabled', false).text(originalButtonText); // Re-enable the button and reset text
+                }
+            }, 1000);
+        });
+
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
-            $('#statusMessage').empty(); // Clear any previous messages
-            $('#taskDetailsTable').empty(); // Clear previous table if any
-
-            // Clear any existing interval to stop updating the previous invoice ID's views
-            clearInterval(updateInterval);
+            $('#statusMessage').empty();
+            $('#taskDetailsTable').empty();
+            clearInterval(timer); // Clear any existing timer
+            $('#updateViewsButton').hide(); // Hide the update views button
+            $('#timer').empty(); // Clear the timer text
 
             var invoiceId = $('#InvoiceId').val();
             $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
@@ -131,13 +163,9 @@
                                 </tr>
                              </table>`;
                 $('#taskDetailsTable').html(table).wrap("<div class='container'></div>");
-
-                // Start an interval to update views sent every 10 seconds
-                updateInterval = setInterval(function() {
-                    fetchAndUpdateViewsSent(invoiceId);
-                }, 10000); // 10 seconds
+                $('#updateViewsButton').show(); // Show the update views button
             }).fail(function(jqXHR) {
-                $('#taskDetailsTable').unwrap(); // Remove the container div if it exists
+                $('#taskDetailsTable').unwrap();
                 if (jqXHR.status === 404) {
                     $('#statusMessage').text('Invoice ID not found.');
                 } else {
@@ -147,8 +175,5 @@
         });
     });
 </script>
-
-
-
 </body>
 </html>
