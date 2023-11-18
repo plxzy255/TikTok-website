@@ -62,11 +62,11 @@
         $('#invoiceCheckForm').on('submit', function(e) {
             e.preventDefault();
             var invoiceId = $('#invoiceId').val();
-            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceId, function(data) {
+            $.get('https://tiktok3928-90a2919b7f98.herokuapp.com/checkInvoice/' + invoiceid, function(data) {
                 if (data) {
-                    var message = `Invoice ID: ${data.InvoiceId}<br>
-                                   Created At: ${data.CreatedAt}<br>
-                                   Quantity: ${data.Quantity}<br>
+                    var message = `Invoice ID: ${data.invoiceid}<br>
+                                   Created At: ${data.createdat}<br>
+                                   Quantity: ${data.quantity}<br>
                                    Target URL: ${data.target_url}<br>
                                    Views Sent: ${data.views_sent}`;
                     $('#statusMessage').html(message);
