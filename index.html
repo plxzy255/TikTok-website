@@ -103,7 +103,7 @@
         var originalCheckStatusButtonText = $('#invoiceCheckForm button').text(); // Store the original text of the check status button
 
         function fetchAndUpdateViewsSent(invoiceId) {
-            $.get('https://71dc-2a02-a03f-e23c-2800-a8a1-7f18-7cf7-9e2c.ngrok-free.app/addTask/' + invoiceId, function(data) {
+            $.get('https://71dc-2a02-a03f-e23c-2800-a8a1-7f18-7cf7-9e2c.ngrok-free.app/viewsSent/' + invoiceId, function(data) {
                 $("th:contains('Views Sent')").next('td').text(data.views_sent);
             }).fail(function(jqXHR) {
                 $('#statusMessage').text('Error fetching current views: ' + jqXHR.responseText);
