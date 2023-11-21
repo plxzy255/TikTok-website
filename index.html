@@ -103,7 +103,7 @@
         var originalCheckStatusButtonText = $('#invoiceCheckForm button').text(); // Store the original text of the check status button
 
         function fetchAndUpdateViewsSent(invoiceId) {
-            $.get('https://modern-seals-brush.loca.lt/viewsSent/' + invoiceId, function(data) {
+            $.get('https://expert-sensibly-hawk.ngrok-free.app/viewsSent/' + invoiceId, function(data) {
                 $("th:contains('Views Sent')").next('td').text(data.views_sent);
             }).fail(function(jqXHR) {
                 $('#statusMessage').text('Error fetching current views: ' + jqXHR.responseText);
@@ -139,7 +139,7 @@
             $('#timer').empty(); // Clear the timer text
 
             var invoiceId = $('#InvoiceId').val();
-            $.get('https://modern-seals-brush.loca.lt/checkInvoice/' + invoiceId, function(data) {
+            $.get('https://expert-sensibly-hawk.ngrok-free.app/checkInvoice/' + invoiceId, function(data) {
                 var table = `<table>
                                 <tr>
                                     <th>Invoice ID</th>
