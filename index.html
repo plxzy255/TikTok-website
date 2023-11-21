@@ -77,7 +77,6 @@
             cursor: not-allowed;
         }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -94,98 +93,129 @@
     <button id="updateViewsButton" type="button" style="display: none; margin-top: 20px;">Update Views</button>
     <p id="timer" style="display: none;"></p>
 </div>
-
 <script>
-    $(document).ready(function() {
-        var updateViewsTimer; // Timer for update views button
-        var checkStatusTimer; // Timer for check status button
-        var originalUpdateViewsButtonText = 'Update Views'; // Store the original text of the update views button
-        var originalCheckStatusButtonText = $('#invoiceCheckForm button').text(); // Store the original text of the check status button
+    document.addEventListener('DOMContentLoaded', function() {
+        var updateViewsTimer;
+        var checkStatusTimer;
+        var originalUpdateViewsButtonText = 'Update Views';
+        var originalCheckStatusButtonText = document.querySelector('#invoiceCheckForm button').innerText;
 
-        function fetchAndUpdateViewsSent(invoiceId) {
-            $.get('https://expert-sensibly-hawk.ngrok-free.app/viewsSent/' + invoiceId, function(data) {
-                $("th:contains('Views Sent')").next('td').text(data.views_sent);
-            }).fail(function(jqXHR) {
-                $('#statusMessage').text('Error fetching current views: ' + jqXHR.responseText);
+        function updateViewsSentText(data) {
+            var thElements = document.querySelectorAll('th');
+            thElements.forEach(function(th) {
+                if (th.textContent.includes('Views Sent')) {
+                    th.nextElementSibling.innerText = data.views_sent;
+                }
             });
         }
 
-        $('#updateViewsButton').on('click', function() {
-            var invoiceId = $('#InvoiceId').val();
-            fetchAndUpdateViewsSent(invoiceId); // Fetch and update views sent
+        function fetchAndUpdateViewsSent(invoiceId) {
+            fetch('https://expert-sensibly-hawk.ngrok-free.app/viewsSent/' + invoiceId, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    updateViewsSentText(data);
+                })
+                .catch(error => {
+                    document.querySelector('#statusMessage').innerText = 'Error fetching current views: ' + error;
+                });
+        }
 
-            $(this).prop('disabled', true).text('Please wait 60 seconds'); // Disable the button and update text
+        document.querySelector('#updateViewsButton').addEventListener('click', function() {
+            var invoiceId = document.querySelector('#InvoiceId').value;
+            fetchAndUpdateViewsSent(invoiceId);
+
+            this.disabled = true;
+            this.innerText = 'Please wait 60 seconds';
 
             var timeLeft = 60;
-            updateViewsTimer = setInterval(function() {
+            updateViewsTimer = setInterval(() => {
                 timeLeft--;
-                $('#updateViewsButton').text('Please wait ' + timeLeft + ' seconds');
                 if (timeLeft <= 0) {
                     clearInterval(updateViewsTimer);
-                    $('#updateViewsButton').prop('disabled', false).text(originalUpdateViewsButtonText); // Re-enable the button and reset text
+                    this.disabled = false;
+                    this.innerText = originalUpdateViewsButtonText;
+                } else {
+                    this.innerText = 'Please wait ' + timeLeft + ' seconds';
                 }
             }, 1000);
         });
 
-        $('#invoiceCheckForm').on('submit', function(e) {
+        document.querySelector('#invoiceCheckForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            var checkStatusButton = $(this).find('button');
-            checkStatusButton.prop('disabled', true).text('Please wait 60 seconds'); // Disable the button and update text
+            var checkStatusButton = this.querySelector('button');
+            checkStatusButton.disabled = true;
+            checkStatusButton.innerText = 'Please wait 60 seconds';
 
-            $('#statusMessage').empty();
-            $('#taskDetailsTable').empty();
-            clearInterval(updateViewsTimer); // Clear any existing update views timer
-            $('#updateViewsButton').hide(); // Hide the update views button
-            $('#timer').empty(); // Clear the timer text
-
-            var invoiceId = $('#InvoiceId').val();
-            $.get('https://expert-sensibly-hawk.ngrok-free.app/checkInvoice/' + invoiceId, function(data) {
-                var table = `<table>
-                                <tr>
-                                    <th>Invoice ID</th>
-                                    <td>${data.InvoiceId}</td>
-                                </tr>
-                                <tr>
-                                    <th>Created At</th>
-                                    <td>${data.CreatedAt}</td>
-                                </tr>
-                                <tr>
-                                    <th>Quantity</th>
-                                    <td>${data.Quantity}</td>
-                                </tr>
-                                <tr>
-                                    <th>Target URL</th>
-                                    <td><a href="${data.target_url}" target="_blank">${data.target_url}</a></td>
-                                </tr>
-                                <tr>
-                                    <th>Views Sent</th>
-                                    <td>${data.views_sent}</td>
-                                </tr>
-                             </table>`;
-                $('#taskDetailsTable').html(table);
-                fetchAndUpdateViewsSent(invoiceId); // Fetch and update views sent after successful invoice ID check
-                $('#updateViewsButton').show().prop('disabled', false).text(originalUpdateViewsButtonText); // Show and reset the update views button
-
-                var timeLeft = 60;
-                checkStatusTimer = setInterval(function() {
-                    timeLeft--;
-                    checkStatusButton.text('Please wait ' + timeLeft + ' seconds');
-                    if (timeLeft <= 0) {
-                        clearInterval(checkStatusTimer);
-                        checkStatusButton.prop('disabled', false).text(originalCheckStatusButtonText); // Re-enable the button and reset text
-                    }
-                }, 1000);
-            }).fail(function(jqXHR) {
-                if (jqXHR.status === 404) {
-                    $('#statusMessage').text('Invoice ID not found.');
+            var timeLeft = 60;
+            checkStatusTimer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(checkStatusTimer);
+                    checkStatusButton.disabled = false;
+                    checkStatusButton.innerText = originalCheckStatusButtonText;
                 } else {
-                    $('#statusMessage').text('Error occurred while checking the status.');
+                    checkStatusButton.innerText = 'Please wait ' + timeLeft + ' seconds';
                 }
-                checkStatusButton.prop('disabled', false).text(originalCheckStatusButtonText); // Reset the check status button in case of failure
-            });
+            }, 1000);
+
+            var invoiceId = document.querySelector('#InvoiceId').value;
+            fetch('https://expert-sensibly-hawk.ngrok-free.app/checkInvoice/' + invoiceId, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    var table = `<table>
+                                    <tr>
+                                        <th>Invoice ID</th>
+                                        <td>${data.InvoiceId}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Created At</th>
+                                        <td>${data.CreatedAt}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Quantity</th>
+                                        <td>${data.Quantity}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Target URL</th>
+                                        <td><a href="${data.target_url}" target="_blank">${data.target_url}</a></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Views Sent</th>
+                                        <td>${data.views_sent}</td>
+                                    </tr>
+                                 </table>`;
+                    document.querySelector('#taskDetailsTable').innerHTML = table;
+                    document.querySelector('#updateViewsButton').style.display = 'block';
+                    fetchAndUpdateViewsSent(invoiceId);
+                })
+                .catch(error => {
+                    if (error.message.includes('404')) {
+                        document.querySelector('#statusMessage').innerText = 'Invoice ID not found.';
+                    } else {
+                        document.querySelector('#statusMessage').innerText = 'Error occurred while checking the status: ' + error.message;
+                    }
+                });
+
+            document.querySelector('#statusMessage').innerText = '';
+            document.querySelector('#taskDetailsTable').innerHTML = '';
+            clearInterval(updateViewsTimer);
+            document.querySelector('#updateViewsButton').style.display = 'none';
+            document.querySelector('#timer').innerText = '';
         });
     });
 </script>
-
 </body>
 </html>
